@@ -187,48 +187,54 @@
       });
 
       document
-        .getElementById("appointmentForm")
-        .addEventListener("submit", async function (event) {
-          event.preventDefault();
-          const name = document.getElementById("name").value;
-          const phone = document.getElementById("phone").value;
-          const date = document.getElementById("date").value;
-          const time = document.getElementById("time").value;
-
-          // Save appointment in Supabase
-          const { data, error } = await supabaseClient
-            .from("appointments")
-            .insert([{ name, phone, date, time }]);
-
-          if (error) {
-            alert("Error booking appointment: " + error.message);
-            return;
-          }
-
-          // Disable the selected time slot
-          const timeDropdown = document.getElementById("time");
-          const selectedOption = timeDropdown.querySelector(
-            `option[value="${time}"]`
-          );
-          if (selectedOption) {
-            selectedOption.disabled = true;
-            selectedOption.text += " (Booked)";
-          }
-
-          // Open WhatsApp with the booking details
-          const whatsappNumber = "+918010772998"; // Replace with your WhatsApp number
-          const message = `Hello, I would like to book an appointment.
-Name: ${name}
-Phone: ${phone}
-Date: ${date}
-Time: ${time}`;
-          const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-            message
-          )}`;
-          window.open(url, "_blank");
-
-          alert("Appointment booked successfully!");
-        });
+      .getElementById("appointmentForm")
+      .addEventListener("submit", async function (event) {
+        event.preventDefault();
+        const name = document.getElementById("name").value;
+        const phone = document.getElementById("phone").value;
+        const date = document.getElementById("date").value;
+        const time = document.getElementById("time").value;
+    
+        // Save appointment in Supabase
+        const { data, error } = await supabaseClient
+          .from("appointments")
+          .insert([{ name, phone, date, time }]);
+    
+        if (error) {
+          alert("Error booking appointment: " + error.message);
+          return;
+        }
+    
+        // Disable the selected time slot
+        const timeDropdown = document.getElementById("time");
+        const selectedOption = timeDropdown.querySelector(
+          `option[value="${time}"]`
+        );
+        if (selectedOption) {
+          selectedOption.disabled = true;
+          selectedOption.text += " (Booked)";
+        }
+    
+        // Open WhatsApp with the booking details
+        const adminWhatsappNumber = "+918010772998"; // Replace with your WhatsApp number
+        const adminMessage = `Hello, I would like to book an appointment.
+    Name: ${name}
+    Phone: ${phone}
+    Date: ${date}
+    Time: ${time}`;
+        const adminUrl = `https://wa.me/${adminWhatsappNumber}?text=${encodeURIComponent(
+          adminMessage
+        )}`;
+        window.open(adminUrl, "_blank");
+    
+        // Send a thank-you message to the user
+        const userMessage = `Thank you, ${name}, for booking your appointment on ${date} at ${time}. We look forward to seeing you!`;
+        const userUrl = `https://wa.me/${phone}?text=${encodeURIComponent(
+          userMessage
+        )}`;
+        window.open(userUrl, "_blank");
+      });
+    
     </script>
   </body>
 </html>
