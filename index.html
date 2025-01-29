@@ -29,6 +29,15 @@
 
         dateInput.min = formatDate(today);
         dateInput.max = formatDate(nextMonth);
+
+        dateInput.addEventListener("input", function () {
+          const selectedDate = new Date(this.value);
+          if (selectedDate.getDay() === 0) { // 0 = Sunday
+            alert("Sundays are not available for appointments. Please select another day.");
+            this.value = "";
+          }
+        });
+        
       });
     </script>
 
@@ -52,7 +61,7 @@
         min-height: 100vh;
       }
 
-      .appointment-form {
+      .appointmentform {
         background: var(--white);
         padding: 20px;
         border-radius: 10px;
@@ -62,21 +71,21 @@
         transition: all 0.3s ease;
       }
 
-      .appointment-form h2 {
+      .appointmentform h2 {
         text-align: center;
         margin-bottom: 20px;
         color: var(--main-color);
       }
 
-      .appointment-form label {
+      .appointmentform label {
         font-weight: bold;
         margin-bottom: 5px;
         display: block;
         color: var(--text-color);
       }
 
-      .appointment-form input,
-      .appointment-form select {
+      .appointmentform input,
+      .appointmentform select {
         width: 100%;
         padding: 10px;
         margin-bottom: 15px;
@@ -85,7 +94,7 @@
         box-sizing: border-box;
       }
 
-      .appointment-form button {
+      .appointmentform button {
         width: 100%;
         padding: 10px;
         background-color: var(--main-color);
@@ -97,7 +106,7 @@
         transition: background-color 0.3s ease;
       }
 
-      .appointment-form button:hover {
+      .appointmentform button:hover {
         background-color: darken(var(--main-color), 10%);
       }
 
@@ -106,52 +115,180 @@
           padding: 15px;
         }
 
-        .appointment-form h2 {
+        .appointmentform h2 {
           font-size: 20px;
         }
 
-        .appointment-form button {
+        .appointmentform button {
           font-size: 14px;
         }
       }
     </style>
   </head>
   <body>
-    <form class="appointment-form" id="appointmentForm">
-      <h2>Book an Appointment</h2>
-      <label for="name">Full Name</label>
+
+    <div
+    style="
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f3f4f6;
+    "
+  >
+    <form
+      class="appointmentform"
+      id="appointmentForm"
+      style="
+        width: 100%;
+        max-width: 800px;
+        padding: 20px;
+        background-color: #ffffff;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+      "
+    >
+      <h2 style="text-align:center; margin-bottom: 20px; font-family: Arial, sans-serif;">
+        Book an Appointment
+      </h2>
+      <label
+        for="name"
+        style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;"
+      >
+        Full Name
+      </label>
       <input
         type="text"
         id="name"
         name="name"
         placeholder="Enter your name"
         required
+        style="
+          width: 100%;
+          padding: 10px;
+          margin-bottom: 15px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          box-sizing: border-box;
+        "
       />
-      <label for="phone">Phone Number</label>
+      <label
+        for="phone"
+        style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;"
+      >
+        Phone Number
+      </label>
       <input
         type="tel"
         id="phone"
         name="phone"
         placeholder="Enter your phone number"
         required
+        style="
+          width: 100%;
+          padding: 10px;
+          margin-bottom: 15px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          box-sizing: border-box;
+        "
       />
-      <label for="date">Appointment Date</label>
-      <input type="date" id="date" name="date" required />
-      <label for="time">Appointment Time</label>
-      <select id="time" name="time" required>
+      <label
+        for="date"
+        style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;"
+      >
+        Appointment Date
+      </label>
+      <input
+        type="date"
+        id="date"
+        name="date"
+        required
+        style="
+          width: 100%;
+          padding: 10px;
+          margin-bottom: 15px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          box-sizing: border-box;
+        "
+      />
+      <label
+        for="time"
+        style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;"
+      >
+        Appointment Time
+      </label>
+      <select
+        id="time"
+        name="time"
+        required
+        style="
+          width: 100%;
+          padding: 10px;
+          margin-bottom: 20px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          box-sizing: border-box;
+        "
+      >
         <option value="" disabled selected>Select Time</option>
-        <option value="9:00 AM">9:00 AM</option>
-        <option value="10:00 AM">10:00 AM</option>
-        <option value="11:00 AM">11:00 AM</option>
-        <option value="12:00 PM">12:00 PM</option>
-        <option value="1:00 PM">1:00 PM</option>
-        <option value="2:00 PM">2:00 PM</option>
-        <option value="3:00 PM">3:00 PM</option>
-        <option value="4:00 PM">4:00 PM</option>
-        <option value="5:00 PM">5:00 PM</option>
+   
+        <option value="11:00-11:30 AM">11:00-11:30 AM</option>
+        <option value="12:00-12:30 PM">12:00-12:30 PM</option>
+        <option value="1:00-1:30 PM">1:00-1:30 PM</option>
+        <option value="2:00-2:30 PM">2:00-2:30 PM</option>
+        <option value="3:00-3:30 PM">3:00-3:30 PM</option>
+        <option value="4:00-4:30 PM">4:00-4:30 PM</option>
+        <option value="5:00-5:30 PM">5:00-5:30 PM</option>
       </select>
-      <button type="submit">Book Appointment</button>
+      <label for="dentalProblem" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">
+        Dental Problem
+      </label>
+      <select
+        id="dentalProblem"
+        name="dentalProblem"
+        required
+        style="
+          width: 100%;
+          padding: 10px;
+          margin-bottom: 20px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          box-sizing: border-box;
+        "
+      >
+        <option value="" disabled selected>Select Problem</option>
+        <option value="Dental Problem / Pain / RCT">Dental Problem / Pain / RCT</option>
+        <option value="Gums Problem">Gums Problem</option>
+        <option value="Facial Bone Fracture">Facial Bone Fracture</option>
+        <option value="Facial treatment">Facial treatment</option>
+        <option value="Fat Reduction">Fat Reduction</option>
+        <option value="Tattoo Removal">Tattoo Removal</option>
+        <option value="Laser Hair Removal">Laser Hair Removal</option>
+        <option value="PRP treatment">PRP or GFC treatment</option>
+        <option value="Dental Implant">Dental Implant</option>
+        <option value="Fixed/Removable teeth">Fixed/Removable teeth</option>
+        <option value="Fixed Braces">Fixed Braces</option>
+        <option value="Aligners">Aligners</option>
+        <option value="Other">Other</option>
+      </select>
+      <button
+        type="submit"
+        style="
+          width: 100%;
+          padding: 10px;
+          color: white;
+          border: none;
+          border-radius: 5px;
+          font-size: 16px;
+          cursor: pointer;
+        "
+      >
+        Book Appointment
+      </button>
     </form>
+  </div>
     <script>
       document.getElementById("date").addEventListener("change", async function () {
         const selectedDate = this.value;
@@ -194,6 +331,7 @@
         const phone = document.getElementById("phone").value;
         const date = document.getElementById("date").value;
         const time = document.getElementById("time").value;
+        const dentalProblem = document.getElementById("dentalProblem").value;
     
         // Save appointment in Supabase
         const { data, error } = await supabaseClient
@@ -221,7 +359,8 @@
     Name: ${name}
     Phone: ${phone}
     Date: ${date}
-    Time: ${time}`;
+    Time: ${time}
+    Condition:${dentalProblem} `;
         const adminUrl = `https://wa.me/${adminWhatsappNumber}?text=${encodeURIComponent(
           adminMessage
         )}`;
