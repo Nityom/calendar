@@ -6,6 +6,7 @@
     <title>WhatsApp Appointment System</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+
     <script>
       const supabaseUrl = "https://egqlzsbalxjmresasnco.supabase.co";
       const supabaseKey =
@@ -300,81 +301,88 @@
       document.getElementById("date").addEventListener("change", async function () {
         const selectedDate = this.value;
         const timeDropdown = document.getElementById("time");
-
+    
         // Reset all options first
         Array.from(timeDropdown.options).forEach((option, index) => {
-          if (index > 0) {
-            option.disabled = false;
-            option.text = option.value; // Reset the text to remove any "(Booked)" labels
-          }
+            if (index > 0) {
+                option.disabled = false;
+                option.textContent = option.value; // Reset text to remove "(Booked)"
+            }
         });
-
-        const { data: bookedSlots, error } = await supabaseClient
-          .from("appointments")
-          .select("time")
-          .eq("date", selectedDate);
-
-        if (error) {
-          console.error("Error fetching slots:", error);
-          return;
+    
+        try {
+            const { data: bookedSlots, error } = await supabaseClient
+                .from("appointments")
+                .select("time")
+                .eq("date", selectedDate);
+    
+            if (error) {
+                console.error("Error fetching slots:", error);
+                return;
+            }
+    
+            if (bookedSlots && bookedSlots.length > 0) {
+                bookedSlots.forEach((slot) => {
+                    const option = timeDropdown.querySelector(`option[value="${slot.time}"]`);
+                    if (option) {
+                        option.disabled = true;
+                        option.textContent += " (Booked)";
+                    }
+                });
+            }
+        } catch (err) {
+            console.error("Unexpected error:", err);
         }
-
-        bookedSlots.forEach((slot) => {
-          const option = timeDropdown.querySelector(
-            `option[value="${slot.time}"]`
-          );
-          if (option) {
-            option.disabled = true;
-            option.text += " (Booked)";
-          }
-        });
-      });
-
-      document
-      .getElementById("appointmentForm")
-      .addEventListener("submit", async function (event) {
+    });
+    
+    document.getElementById("appointmentForm").addEventListener("submit", async function (event) {
         event.preventDefault();
-        const name = document.getElementById("name").value;
-        const phone = document.getElementById("phone").value;
-        const date = document.getElementById("date").value;
-        const time = document.getElementById("time").value;
-        const dentalProblem = document.getElementById("dentalProblem").value;
     
-        // Save appointment in Supabase
-        const { data, error } = await supabaseClient
-          .from("appointments")
-          .insert([{ name, phone, date, time }]);
+        const name = document.getElementById("name").value.trim();
+        const phone = document.getElementById("phone").value.trim();
+        const date = document.getElementById("date").value.trim();
+        const time = document.getElementById("time").value.trim();
+        const dentalProblem = document.getElementById("dentalProblem").value.trim();
     
-        if (error) {
-          alert("Error booking appointment: " + error.message);
-          return;
+        if (!name || !phone || !date || !time || !dentalProblem) {
+            alert("Please fill in all fields before booking.");
+            return;
         }
     
-        // Disable the selected time slot
-        const timeDropdown = document.getElementById("time");
-        const selectedOption = timeDropdown.querySelector(
-          `option[value="${time}"]`
-        );
-        if (selectedOption) {
-          selectedOption.disabled = true;
-          selectedOption.text += " (Booked)";
-        }
+        try {
+            // Save appointment in Supabase
+            const { data, error } = await supabaseClient
+                .from("appointments")
+                .insert([{ name, phone, date, time, dentalProblem }]);
     
-        // Open WhatsApp with the booking details
-        const adminWhatsappNumber = "+919525050250"; // Replace with your WhatsApp number
-        const adminMessage = `Hello, I would like to book an appointment.
-    Name: ${name}
-    Phone: ${phone}
-    Date: ${date}
-    Time: ${time}
-    Condition:${dentalProblem} `;
-        const adminUrl = `https://wa.me/${adminWhatsappNumber}?text=${encodeURIComponent(
-          adminMessage
-        )}`;
-        window.open(adminUrl, "_blank");
-       
-     
-      });
+            if (error) {
+                alert("Error booking appointment: " + error.message);
+                return;
+            }
+    
+            // Disable the selected time slot
+            const timeDropdown = document.getElementById("time");
+            const selectedOption = timeDropdown.querySelector(`option[value="${time}"]`);
+            if (selectedOption) {
+                selectedOption.disabled = true;
+                selectedOption.textContent += " (Booked)";
+            }
+    
+            // Open WhatsApp with the booking details
+            const adminWhatsappNumber = "+919525050250"; // Replace with actual WhatsApp number
+            const adminMessage = `Hello, I would like to book an appointment.\n\nName: ${name}\nPhone: ${phone}\nDate: ${date}\nTime: ${time}\nCondition: ${dentalProblem}`;
+            
+            const whatsappUrl = `https://wa.me/${adminWhatsappNumber}?text=${encodeURIComponent(adminMessage)}`;
+            
+            // Use location.href instead of window.open for better compatibility
+            window.location.href = whatsappUrl;
+    
+        } catch (err) {
+            console.error("Unexpected error:", err);
+            alert("An unexpected error occurred. Please try again.");
+        }
+    });
+    
     
     </script>
   </body>
