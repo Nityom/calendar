@@ -301,9 +301,7 @@
       document.getElementById("date").addEventListener("change", async function () {
         const selectedDate = this.value;
         const timeDropdown = document.getElementById("time");
-const dentalProblem = document
-getElementById("dentalproblem" ).value
-trim();
+const dentalProblem = document.getElementById("dentalProblem").value.trim();
     
         // Reset all options first
         Array.from(timeDropdown.options).forEach((option, index) => {
@@ -345,7 +343,10 @@ trim();
         const phone = document.getElementById("phone").value.trim();
         const date = document.getElementById("date").value.trim();
         const time = document.getElementById("time").value.trim();
-        
+
+
+        const dentalProblem = document.getElementById("dentalProblem").value.trim();
+
     
         if (!name || !phone || !date || !time || !dentalProblem) {
             alert("Please fill in all fields before booking.");
