@@ -353,7 +353,7 @@
             // Save appointment in Supabase
             const { data, error } = await supabaseClient
                 .from("appointments")
-                .insert([{ name, phone, date, time, dentalProblem }]);
+                .insert([{ name, phone, date, time }]);
     
             if (error) {
                 alert("Error booking appointment: " + error.message);
