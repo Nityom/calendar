@@ -337,55 +337,72 @@ const dentalProblem = document.getElementById("dentalProblem").value.trim();
     });
     
     document.getElementById("appointmentForm").addEventListener("submit", async function (event) {
-        event.preventDefault();
-    
-        const name = document.getElementById("name").value.trim();
-        const phone = document.getElementById("phone").value.trim();
-        const date = document.getElementById("date").value.trim();
-        const time = document.getElementById("time").value.trim();
+    event.preventDefault();
 
+    const name = document.getElementById("name").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const date = document.getElementById("date").value.trim();
+    const time = document.getElementById("time").value.trim();
+    const dentalProblem = document.getElementById("dentalProblem").value.trim();
 
-        const dentalProblem = document.getElementById("dentalProblem").value.trim();
+    if (!name || !phone || !date || !time || !dentalProblem) {
+        alert("Please fill in all fields before booking.");
+        return;
+    }
 
-    
-        if (!name || !phone || !date || !time || !dentalProblem) {
-            alert("Please fill in all fields before booking.");
+    try {
+        // Check if the time slot is already booked
+        const { data: existingBookings, error: checkError } = await supabaseClient
+            .from("appointments")
+            .select("*")
+            .eq("date", date)
+            .eq("time", time);
+
+        if (checkError) {
+            throw checkError;
+        }
+
+        if (existingBookings && existingBookings.length > 0) {
+            alert("This time slot is already booked. Please select another time.");
             return;
         }
-    
-        try {
-            // Save appointment in Supabase
-            const { data, error } = await supabaseClient
-                .from("appointments")
-                .insert([{ name, phone, date, time }]);
-    
-            if (error) {
-                alert("Error booking appointment: " + error.message);
-                return;
-            }
-    
-            // Disable the selected time slot
-            const timeDropdown = document.getElementById("time");
-            const selectedOption = timeDropdown.querySelector(`option[value="${time}"]`);
-            if (selectedOption) {
-                selectedOption.disabled = true;
-                selectedOption.textContent += " (Booked)";
-            }
-    
-            // Open WhatsApp with the booking details
-            const adminWhatsappNumber = "+919525050250"; // Replace with actual WhatsApp number
-            const adminMessage = `Hello, I would like to book an appointment.\n\nName: ${name}\nPhone: ${phone}\nDate: ${date}\nTime: ${time}\nCondition: ${dentalProblem}`;
-            
-            const whatsappUrl = `https://wa.me/${adminWhatsappNumber}?text=${encodeURIComponent(adminMessage)}`;
-            
-            // Use location.href instead of window.open for better compatibility
-            window.location.href = whatsappUrl;
-    
-        } catch (err) {
-            console.error("Unexpected error:", err);
-            alert("An unexpected error occurred. Please try again.");
+
+        // Save appointment in Supabase
+        const { data, error } = await supabaseClient
+            .from("appointments")
+            .insert([{ 
+                name, 
+                phone, 
+                date, 
+                time,
+                dentalProblem 
+            }]);
+
+        if (error) {
+            alert("Error booking appointment: " + error.message);
+            return;
         }
-    });
+
+        // Disable the selected time slot
+        const timeDropdown = document.getElementById("time");
+        const selectedOption = timeDropdown.querySelector(`option[value="${time}"]`);
+        if (selectedOption) {
+            selectedOption.disabled = true;
+            selectedOption.textContent += " (Booked)";
+        }
+
+        // Open WhatsApp with the booking details
+        const adminWhatsappNumber = "+919525050250";
+        const adminMessage = `Hello, I would like to book an appointment.\n\nName: ${name}\nPhone: ${phone}\nDate: ${date}\nTime: ${time}\nCondition: ${dentalProblem}`;
+        
+        const whatsappUrl = `https://wa.me/${adminWhatsappNumber}?text=${encodeURIComponent(adminMessage)}`;
+        window.location.href = whatsappUrl;
+
+    } catch (err) {
+        console.error("Unexpected error:", err);
+        alert("An unexpected error occurred. Please try again.");
+    }
+});
     
     
     </script>
