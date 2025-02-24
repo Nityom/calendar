@@ -58,7 +58,13 @@
             margin-top: 0.5rem;
         }
         button:hover { background: linear-gradient(to right, #5a7af0, #9566d8); }
-        #error-message { color: #ff5252; font-size: 0.85rem; margin-top: 1rem; min-height: 20px; }
+        #error-message { 
+            color: #ff5252; 
+            font-size: 0.85rem; 
+            margin-top: 1rem; 
+            min-height: 20px; 
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -76,15 +82,14 @@
             <input type="password" id="password" placeholder="Password" autocomplete="current-password">
         </div>
         
-        <button onclick="login()">Login</button>
+        <button onclick="login(event)">Login</button>
         <p id="error-message"></p>
     </div>
 
     <script>
-        // Redirect if already logged in
         window.onload = function() {
-            if (sessionStorage.getItem("loggedIn") === "true") {
-                window.location.href = "see.html";
+            if (sessionStorage.getItem("loggedIn") === "true" && window.location.href !== "/see.html") {
+                window.location.href = "see.html"; 
             }
         };
 
@@ -100,23 +105,18 @@
                 return;
             }
 
-            if (username === "admin" && password === "Kautilya@1234") {
-                sessionStorage.setItem("loggedIn", "true");  // Change to localStorage if needed
-                window.location.href = "see.html";
+            if (username === "admin" && password === "admin@1234") {
+                sessionStorage.setItem("loggedIn", "true");  
+                window.location.href = "see.html";  
             } else {
                 errorMessage.innerText = "Invalid username or password!";
                 document.getElementById("password").value = "";
             }
         }
 
-        // Allow pressing Enter to login
         document.addEventListener("keyup", function(event) {
             if (event.key === "Enter") login();
         });
-
-        if (sessionStorage.getItem("loggedIn") === "true") {
-            window.location.href = "see.html";
-        }
     </script>
 </body>
 </html>
