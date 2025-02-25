@@ -82,40 +82,25 @@
             <input type="password" id="password" placeholder="Password" autocomplete="current-password">
         </div>
         
-        <button onclick="login(event)">Login</button>
+        <button id="loginButton">Login</button>
         <p id="error-message"></p>
     </div>
 
     <script>
-        window.onload = function() {
-            if (sessionStorage.getItem("loggedIn") === "true" && window.location.href !== "/see.html") {
-                window.location.href = "see.html"; 
-            }
-        };
+        document.addEventListener("DOMContentLoaded", function () {
+            document.getElementById("loginButton").addEventListener("click", function(event) {
+                event.preventDefault(); // Prevent default behavior
 
-        function login() {
-            const username = document.getElementById("username").value.trim();
-            const password = document.getElementById("password").value.trim();
-            const errorMessage = document.getElementById("error-message");
+                const username = document.getElementById("username").value;
+                const password = document.getElementById("password").value;
 
-            errorMessage.innerText = "";
-
-            if (!username || !password) {
-                errorMessage.innerText = "Please enter both username and password";
-                return;
-            }
-
-            if (username === "admin" && password === "admin@1234") {
-                sessionStorage.setItem("loggedIn", "true");  
-                window.location.href = "see.html";  
-            } else {
-                errorMessage.innerText = "Invalid username or password!";
-                document.getElementById("password").value = "";
-            }
-        }
-
-        document.addEventListener("keyup", function(event) {
-            if (event.key === "Enter") login();
+                if (username === "admin" && password === "admin@1234") { // Change 'yourpassword' to actual password
+                    sessionStorage.setItem("authenticated", "true");
+                    window.location.href = "see.html"; // Redirect to protected page
+                } else {
+                    document.getElementById("error-message").textContent = "Invalid username or password!";
+                }
+            });
         });
     </script>
 </body>
