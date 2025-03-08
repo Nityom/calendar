@@ -49,6 +49,18 @@
                 <input type="text" id="newName" placeholder="Enter patient name">
             </div>
             
+            <div class="input-group">
+                <label for="newPhone">Patient Phone</label>
+                <i class="fas fa-phone"></i>
+                <input type="tel" id="newPhone" placeholder="Enter patient phone">
+            </div>
+            
+            <div class="input-group">
+                <label for="newDentalProblem">Dental Problem</label>
+                <i class="fas fa-tooth"></i>
+                <input type="text" id="newDentalProblem" placeholder="Enter dental problem">
+            </div>
+            
             <div class="modal-buttons">
                 <button class="update-btn" onclick="submitUpdate()">
                     <i class="fas fa-check"></i> Update
@@ -61,10 +73,12 @@
     </div>
 
     <script>
+        let updatingSlotId;
+        let supabase;
         
         document.addEventListener("DOMContentLoaded", async () => {
             const supabaseUrl = "https://egqlzsbalxjmresasnco.supabase.co";
-            const supabaseKey =       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVncWx6c2JhbHhqbXJlc2FzbmNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcxMjgxMDksImV4cCI6MjA1MjcwNDEwOX0.WS-D1f9JokaJA0mfpZnuiSeiFfaeTjWPvCSlDOGc_-4"; // Replace with your actual key
+            const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVncWx6c2JhbHhqbXJlc2FzbmNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcxMjgxMDksImV4cCI6MjA1MjcwNDEwOX0.WS-D1f9JokaJA0mfpZnuiSeiFfaeTjWPvCSlDOGc_-4"; // Replace with your actual key
             supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
             const { data: { user } } = await supabase.auth.getUser();
             if (sessionStorage.getItem("authenticated") !== "true") {
@@ -91,10 +105,12 @@
         }
         
         // Open and Close Modal
-        function openModal(id, time, name) {
+        function openModal(id, time, name, phone, dentalProblem) {
             updatingSlotId = id;
             document.getElementById("newTime").value = time;
             document.getElementById("newName").value = name || "";
+            document.getElementById("newPhone").value = phone || "";
+            document.getElementById("newDentalProblem").value = dentalProblem || "";
             document.getElementById("updateModal").style.display = "flex";
             setTimeout(() => document.getElementById("updateModal").classList.add("active"), 10);
         }
@@ -108,6 +124,8 @@
         async function submitUpdate() {
             const newTime = document.getElementById("newTime").value;
             const newName = document.getElementById("newName").value;
+            const newPhone = document.getElementById("newPhone").value;
+            const newDentalProblem = document.getElementById("newDentalProblem").value;
         
             if (!newTime) {
                 alert("Please enter a valid time");
@@ -117,7 +135,12 @@
             try {
                 const { error } = await supabase
                     .from("appointments")
-                    .update({ time: newTime, name: newName })
+                    .update({ 
+                        time: newTime, 
+                        name: newName, 
+                        phone: newPhone,
+                        dentalProblem: newDentalProblem 
+                    })
                     .eq("id", updatingSlotId);
         
                 if (error) {
@@ -174,9 +197,16 @@
         
                 const slotsList = document.getElementById("slotsList");
                 slotsList.innerHTML = "";
+                
+                console.log("Fetched data:", data); // Debug to see the structure of the data
         
                 if (data && data.length > 0) {
-                    slotsList.innerHTML = data.map(slot => `
+                    slotsList.innerHTML = data.map(slot => {
+                        // Handle potential XSS by escaping special characters
+                        const escapedDentalProblem = slot.dental_problem ? 
+                            slot.dental_problem.replace(/"/g, '&quot;').replace(/'/g, '&#39;') : '';
+                        
+                        return `
                         <li class="slot-card">
                             <div class="slot-info">
                                 <div class="time-icon">
@@ -185,17 +215,20 @@
                                 <div class="slot-details">
                                     <span class="slot-time">${slot.time}</span>
                                     <span class="slot-patient">${slot.name ? 'Patient: ' + slot.name : 'Available'}</span>
+                                    ${slot.phone ? '<span class="slot-phone"><i class="fas fa-phone"></i> ' + slot.phone + '</span>' : ''}
+                                    ${slot.dentalProblem ? '<span class="slot-problem"><i class="fas fa-tooth"></i> Problem: ' + slot.dentalProblem + '</span>' : ''}
                                 </div>
                             </div>
                             <div class="button-group">
-                                <button class="update-btn" onclick="openModal('${slot.id}', '${slot.time}', '${slot.name || ''}')">
+                                <button class="update-btn" onclick="openModal('${slot.id}', '${slot.time}', '${slot.name || ''}', '${slot.phone || ''}', '${escapedDentalProblem}')">
                                     <i class="fas fa-edit"></i> Update
                                 </button>
                                 <button class="delete-btn" onclick="deleteAppointment('${slot.id}')">
                                     <i class="fas fa-trash-alt"></i> Delete
                                 </button>
                             </div>
-                        </li>`).join('');
+                        </li>`;
+                    }).join('');
                 } else {
                     slotsList.innerHTML = `
                         <div class="empty-state">
@@ -211,5 +244,31 @@
         }
     </script>
     
+    <style>
+        /* Additional CSS for phone and dental problem display */
+        .slot-phone, .slot-problem {
+            display: block;
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 4px;
+        }
+        
+        .slot-phone i, .slot-problem i {
+            margin-right: 5px;
+        }
+        
+        .slot-phone i {
+            color: #4a90e2;
+        }
+        
+        .slot-problem i {
+            color: #e67e22;
+        }
+        
+        /* Make the modal a bit taller to accommodate the new field */
+        .modal-content {
+            max-height: 90vh;
+        }
+    </style>
 </body>
 </html>
